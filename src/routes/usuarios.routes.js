@@ -4,9 +4,9 @@ import { verifyToken } from '../jwt/verifyToken.js';
 
 const router=Router()
 
-router.get('/usuarios',getUsuarios) //select
-router.get('/usuarios/:id', getUsarioxid); // Obtener un usuario por id (requiere token)
-router.post('/usuarios', postUsuarios)
-router.post('/login', login); // login
+router.get('/usuarios', verifyToken, getUsuarios) //select
+router.get('/usuarios/:id', verifyToken, getUsarioxid); // Obtener un usuario por id (requiere token)
+router.post('/usuarios', verifyToken, postUsuarios)
+router.post('/login', verifyToken, login); // login
 
 export default router
