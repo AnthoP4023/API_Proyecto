@@ -31,17 +31,22 @@ async (req, res) => {
 }
 
 
-export const postUsuarios = 
-async (req, res) => {
+export const postUsuarios = async (req, res) => {
     try {
-        const { usr_nombres, usr_apellidos, usr_correo, usr_usuario, usr_clave, FechaRegistro } = req.body;
+        const { usr_nombres, usr_apellidos, usr_correo, usr_usuario, usr_clave } = req.body;
 
         // Encriptar la contraseña
         const saltRounds = 10; // Número de rondas para el hash
         const hashedPassword = await bcrypt.hash(usr_clave, saltRounds);
 
-        const [rows] = await conmysql.query('INSERT INTO usuarios (usr_nombres, usr_apellidos, usr_correo, usr_usuario, usr_clave, FechaRegistro) VALUES (?, ?, ?, ?, ?, ?)', 
-            [usr_nombres, usr_apellidos, usr_correo, usr_usuario, hashedPassword, FechaRegistro]);
+        // Generar la fecha actual
+        const FechaRegistro = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+        // Insertar el usuario en la base de datos con la fecha actual
+        const [rows] = await conmysql.query(
+            'INSERT INTO usuarios (usr_nombres, usr_apellidos, usr_correo, usr_usuario, usr_clave, FechaRegistro) VALUES (?, ?, ?, ?, ?, ?)',
+            [usr_nombres, usr_apellidos, usr_correo, usr_usuario, hashedPassword, FechaRegistro]
+        );
 
         res.send({ id: rows.insertId });
     } catch (error) {
@@ -49,6 +54,7 @@ async (req, res) => {
         return res.status(500).json({ message: 'Error del lado del servidor' });
     }
 };
+
 
 export const login = async (req, res) => {
     const { usr_usuario, usr_clave } = req.body;
