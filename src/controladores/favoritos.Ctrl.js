@@ -81,26 +81,29 @@ export const getFavoritosxid = async (req, res) => {
     }
 };
 
-// Agregar un curso a favoritos
 export const postFavoritos = async (req, res) => {
     try {
-        const usr_id = req.user.id; // Usuario autenticado desde el token
-        const { crs_id } = req.body;
+        const usr_id = req.user.id; // Obtener el ID del usuario autenticado
+        const { crs_id } = req.body; // Obtener el ID del curso
 
+        // Verificar que el ID del curso esté presente
         if (!crs_id) {
             return res.status(400).json({ message: "Falta el ID del curso para agregar a favoritos." });
         }
-        
+
+        // Ejecutar la consulta para agregar el curso a favoritos
         const [rows] = await conmysql.query(`
             INSERT INTO favorito (usr_id, crs_id) VALUES (?, ?)
         `, [usr_id, crs_id]);
 
+        // Enviar una respuesta exitosa
         res.status(201).send({
             fav_id: rows.insertId,
             message: "Curso agregado a favoritos correctamente."
         });
     } catch (error) {
-        return res.status(500).json({ message: "Error del lado del servidor" });
+        console.error('Error al agregar a favoritos:', error); // Registrar el error en el servidor
+        return res.status(500).json({ message: "Error del lado del servidor", error: error.message });
     }
 };
 
