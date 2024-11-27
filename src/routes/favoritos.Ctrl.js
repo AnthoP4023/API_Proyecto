@@ -15,9 +15,9 @@ const router = Router();
 
 // Rutas para favoritos
 router.get('/favoritos', getFavoritos); // Obtener todos los favoritos
-router.get('/favoritos/:id', verifyToken, getFavoritosxid); // Obtener favoritos de un usuario específico
-router.post('/favoritos', verifyToken, postFavoritos); // Agregar un curso a favoritos
-router.delete('/favoritos/:crs_id', verifyToken, deleteFavoritosUsrxCur); // Eliminar un curso de favoritos
+router.get('/favoritos/:id' , getFavoritosxid); // Obtener favoritos de un usuario específico
+router.post('/favoritos', postFavoritos); // Agregar un curso a favoritos
+router.delete('/favoritos/:crs_id', deleteFavoritosUsrxCur); // Eliminar un curso de favoritos
 //router.delete('/favoritos', verifyToken, deleteFavoritos); // Eliminar todos los favoritos de un usuario
 
 export default router;
