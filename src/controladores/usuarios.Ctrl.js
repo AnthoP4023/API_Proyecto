@@ -57,33 +57,32 @@ export const postUsuarios = async (req, res) => {
 
 
 export const login = async (req, res) => {
-    const { usr_usuario, usr_clave } = req.body;
+  const { usr_usuario, usr_clave } = req.body;
+
+  if (!usr_usuario || !usr_clave) {
+    return res.status(400).json({ message: 'Por favor ingrese usuario y contraseña' });
+  }
+
+  try {
+    const [user] = await conmysql.query('SELECT * FROM usuarios WHERE usr_usuario = ?', [usr_usuario]);
     
-    if (!usr_usuario || !usr_clave) {
-        return res.status(400).json({ message: 'Por favor ingrese usuario y contraseña' });
+    if (!user.length) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    try {
-        const [user] = await conmysql.query('SELECT * FROM usuarios WHERE usr_usuario = ?', [usr_usuario]);
-        
-        if (!user.length) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        const isPasswordValid = await bcrypt.compare(usr_clave, user[0].usr_clave);
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Contraseña inválida' });
-        }
-
-        // Crear el token
-        const token = jwt.sign({ id: user[0].usr_id }, process.env.JWT_SECRET, {
-            expiresIn: '1h'
-        });
-
-        // Enviar el token y el id del usuario en la respuesta
-        res.status(200).json({ auth: true, token, usr_id: user[0].usr_id });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error del lado del servidor' });
+    const isPasswordValid = await bcrypt.compare(usr_clave, user[0].usr_clave);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Contraseña inválida' });
     }
+
+    // Crear el token
+    const token = jwt.sign({ id: user[0].usr_id }, process.env.JWT_SECRET || 'default_secret', {
+      expiresIn: '1h'
+    });
+
+    res.status(200).json({ auth: true, token, usr_id: user[0].usr_id });
+  } catch (error) {
+    console.error('Error en login:', error); // Log detallado
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
 };
